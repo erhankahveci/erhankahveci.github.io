@@ -55,12 +55,18 @@
     transition: background 0.3s ease, color 0.3s ease;
   }
 
-  /* Tema değiştirme butonu */
-  .theme-toggle {
+  /* Üst kontroller - tema ve dil butonları */
+  .top-controls {
     position: absolute;
     top: 36px;
     right: 36px;
     z-index: 1000;
+    display: flex;
+    gap: 12px;
+  }
+  
+  /* Tema ve dil değiştirme butonları */
+  .theme-toggle, .lang-toggle {
     background: var(--glass);
     border: 1px solid var(--glass);
     border-radius: 50%;
@@ -75,15 +81,16 @@
     backdrop-filter: blur(4px);
   }
   
-  .theme-toggle:hover {
+  .theme-toggle:hover, .lang-toggle:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   }
   
-  .theme-toggle i {
+  .theme-toggle i, .lang-toggle span {
     font-size: 20px;
     color: var(--neon);
     transition: transform 0.3s ease;
+    font-weight: 700;
   }
 
   /* Top bar / hero */
@@ -226,21 +233,34 @@
   box-shadow: 0 16px 40px rgba(0,0,0,0.1), 0 0 28px rgba(0,119,182,0.1);
 }
 
-.card::after {
-  content: "Devamını oku...";
+.read-more {
   position: absolute;
   bottom: 10px;
   right: 14px;
   font-size: 12px;
   color: var(--neon);
   font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  /* Düzeltme: opacity değerini 1 yap ve hover ile vurgula */
+  opacity: 0.8; /* Varsayılan olarak görünür */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.card:hover::after {
+.card:hover .read-more {
   opacity: 1;
+  transform: translateX(-4px);
+}
+
+.read-more::after {
+  content: "→";
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .read-more::after {
+  transform: translateX(4px);
 }
 
 .thumb {
@@ -264,6 +284,7 @@
 
 .card-body {
   flex: 1;
+  padding-bottom: 24px; /* "Devamını oku" için alan aç */
 }
 
 .card-title {
@@ -280,6 +301,11 @@
   color: var(--muted);
   font-size: 13px;
   line-height: 1.35;
+  /* Metin uzunsa kesme */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* overlay fullscreen detail */
@@ -346,6 +372,7 @@
   color: var(--muted);
   margin: 0;
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .overlay-close {
@@ -373,7 +400,7 @@
     .hero { grid-template-columns: 1fr 260px;}
     .overlay-inner{flex-direction:column}
     .overlay-media{flex-basis:40%}
-    .theme-toggle {
+    .top-controls {
       top: 20px;
       right: 20px;
     }
@@ -422,11 +449,22 @@
     .overlay-media{min-height:220px}
     .intro-title { font-size: 22px; }
     .intro-sub { font-size: 13px; }
-    .theme-toggle {
-      width: 40px;
-      height: 40px;
+    .top-controls {
       top: 16px;
       right: 16px;
+      gap: 8px;
+    }
+    .theme-toggle, .lang-toggle {
+      width: 40px;
+      height: 40px;
+    }
+    
+    /* Mobilde "devamını oku" daha belirgin olsun */
+    .read-more {
+      opacity: 1 !important; /* Mobilde her zaman görünür */
+      font-size: 11px;
+      bottom: 8px;
+      right: 10px;
     }
   }
   
@@ -551,23 +589,28 @@
 </head>
 <body>
 
-  <!-- Tema değiştirme butonu -->
-  <div class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
-    <i class="fa-solid fa-moon"></i>
+  <!-- Tema ve dil değiştirme butonları -->
+  <div class="top-controls">
+    <div class="lang-toggle" id="langToggle" aria-label="Dil değiştir">
+      <span id="langText">TR</span>
+    </div>
+    <div class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+      <i class="fa-solid fa-moon"></i>
+    </div>
   </div>
 
   <div class="top" role="banner">
     <div class="brand">
       <img src="images/ek_logo.svg" alt="EK Logo" style="height: 100px; width: auto;">
       <div>
-        <h1>Erhan Kahveci</h1>
-        <p style="margin-top:6px">Bilgisayar Mühendisliği Öğrencisi • Sistem & Yazılım • Blue Team </p>
+        <h1 data-i18n="name">Erhan Kahveci</h1>
+        <p style="margin-top:6px" data-i18n="title">Bilgisayar Mühendisliği Öğrencisi • Sistem & Yazılım • Blue Team</p>
       </div>
     </div>
 
     <div class="cta-container">
       <button id="ctaToggle" class="btn primary" aria-expanded="false" aria-controls="ctaMenu">
-        <i class="fa-solid fa-address-card"></i> İletişim
+        <i class="fa-solid fa-address-card"></i> <span data-i18n="contact">İletişim</span>
       </button>
 
       <div id="ctaMenu" class="cta-menu" role="menu" aria-hidden="true">
@@ -584,7 +627,7 @@
           Medium
         </a>
         <a role="menuitem" class="cta-link mail" href="mailto:erhan.kahveci22@ogr.atauni.edu.tr">
-          <i class="fa-solid fa-envelope"></i> E-posta
+          <i class="fa-solid fa-envelope"></i> <span data-i18n="email">E-posta</span>
         </a>
 
         <a 
@@ -594,7 +637,7 @@
           target="_blank" 
           rel="noopener noreferrer"
         >
-          <i class="fa-solid fa-file-pdf"></i> CV PDF TR
+          <i class="fa-solid fa-file-pdf"></i> <span data-i18n="cv_tr">CV PDF TR</span>
         </a>
         <a 
           class="btn secondary download-cv" 
@@ -603,7 +646,7 @@
           target="_blank" 
           rel="noopener noreferrer"
         >
-          <i class="fa-solid fa-file-pdf"></i> CV PDF EN
+          <i class="fa-solid fa-file-pdf"></i> <span data-i18n="cv_en">CV PDF EN</span>
         </a>
       </div>
     </div>
@@ -612,8 +655,8 @@
   <div class="hero" role="region" aria-label="Hero">
     <div class="hero-left">
       <div class="intro">
-        <h2 class="intro-title">Yazılım Geliştirici Adayı | Takım Lideri & Mentor</h2>
-        <p class="intro-sub">Merhaba, ben Erhan Kahveci, Atatürk Üniversitesi Bilgisayar Mühendisliği 4. sınıf öğrencisiyim. Eğitimim boyunca programlama dilleri (C++, Python, MATLAB, Java), veri tabanı yönetimi (SQL, SQLite), web ve mobil uygulama geliştirme (ASP.NET, Flutter) ile kullanıcı arayüzü tasarımı (Figma) konularında deneyim kazandım. Ayrıca GNU/Linux işletim sistemleri, komut satırı betik yazımı ve paralel programlama alanlarında da derinlemesine bilgi sahibiyim.
+        <h2 class="intro-title" data-i18n="hero_title">Yazılım Geliştirici Adayı | Takım Lideri & Mentor</h2>
+        <p class="intro-sub" data-i18n="hero_desc">Merhaba, ben Erhan Kahveci, Atatürk Üniversitesi Bilgisayar Mühendisliği 4. sınıf öğrencisiyim. Eğitimim boyunca programlama dilleri (C++, Python, MATLAB, Java), veri tabanı yönetimi (SQL, SQLite), web ve mobil uygulama geliştirme (ASP.NET, Flutter) ile kullanıcı arayüzü tasarımı (Figma) konularında deneyim kazandım. Ayrıca GNU/Linux işletim sistemleri, komut satırı betik yazımı ve paralel programlama alanlarında da derinlemesine bilgi sahibiyim.
 
 Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması becerilerimi geliştirdim. TEKNOFEST gibi önemli etkinliklerde takım kaptanlığı ve proje yönetimi tecrübeleri edindim. Ayrıca Tivibu'da yazılım test stajyeri olarak çalışma fırsatı buldum. Teknoloji alanında yenilikçi çözümler üretmek ve kendimi sürekli geliştirmek hedefiyle kariyerime yön veriyorum.</p>
 
@@ -636,8 +679,8 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         <img src="images/profile_fotografi.JPG" alt="Profil fotoğrafı">
       </div>
       <div>
-        <div class="role">Bilgisayar Mühendisliği Öğrencisi</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px">
+        <div class="role" data-i18n="role">Bilgisayar Mühendisliği Öğrencisi</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px" data-i18n="achievements">
           •Teknofest Finalisti • Tivibu Yazılım Test Stajyeri • Mentör <br>
           •Denetleme Kurulu Başkanı
         </div>
@@ -649,30 +692,32 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section>
     <div class="section-head" style="margin-top:28px">
       <div>
-        <div class="section-title">İş Deneyimi</div>
-        <div class="section-sub">Staj ve İş Tecrübeleri</div>
+        <div class="section-title" data-i18n="experience_title">İş Deneyimi</div>
+        <div class="section-sub" data-i18n="experience_sub">Staj ve İş Tecrübeleri</div>
       </div>
     </div>
 
     <div class="grid" id="is-grid">
       <article class="card" 
-        data-full='{"title":"Deneyap Türkiye – Proje Mentörlüğü","desc":"Aralık 2024 - Mayıs 2025\n\nİşbirliği: T.C. Sanayi ve Teknoloji Bakanlığı, T.C. Gençlik ve Spor Bakanlığı, TÜBİTAK, Türkiye Teknoloji Takımı\n\nGörevler ve Katkılarım:\n- Ortaokul ve lise öğrencilerine yönelik teknoloji tabanlı projelerde mentörlük yaptım.\n- Öğrencilerin yazılım ve mühendislik temelli projelerine teknik destek verdim.\n- Problem çözme, algoritma mantığı ve proje sunumu gibi konularda yönlendirme sağladım.\n- Grup içi çalışmaları yönettim, haftalık ilerleme takibi yaptım ve değerlendirme sürecine katkıda bulundum.","img":"images/Deneyap_Mentor_Sertifika.svg","link":"https://drdogrulama.sanayi.gov.tr/tr/verify/57878458491115/"}'
+        data-full='{"title_tr":"Deneyap Türkiye – Proje Mentörlüğü","title_en":"Deneyap Turkey - Project Mentorship","desc_tr":"Aralık 2024 - Mayıs 2025\n\nİşbirliği: T.C. Sanayi ve Teknoloji Bakanlığı, T.C. Gençlik ve Spor Bakanlığı, TÜBİTAK, Türkiye Teknoloji Takımı\n\nGörevler ve Katkılarım:\n- Ortaokul ve lise öğrencilerine yönelik teknoloji tabanlı projelerde mentörlük yaptım.\n- Öğrencilerin yazılım ve mühendislik temelli projelerine teknik destek verdim.\n- Problem çözme, algoritma mantığı ve proje sunumu gibi konularda yönlendirme sağladım.\n- Grup içi çalışmaları yönettim, haftalık ilerleme takibi yaptım ve değerlendirme sürecine katkıda bulundum.","desc_en":"December 2024 - May 2025\n\nCollaboration: Ministry of Industry and Technology, Ministry of Youth and Sports, TÜBİTAK, Turkey Technology Team\n\nResponsibilities and Contributions:\n- Mentored middle and high school students on technology-based projects.\n- Provided technical support for students software and engineering projects.\n- Guided students in problem-solving, algorithm logic, and project presentation.\n- Managed group work, tracked weekly progress, and contributed to the evaluation process.","img":"images/Deneyap_Mentor_Sertifika.svg","link":"https://drdogrulama.sanayi.gov.tr/tr/verify/57878458491115/"}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/Deneyap_Mentor_Sertifika.svg" alt=""></div>
         <div class="card-body">
-          <div class="card-title">Deneyap Türkiye – Proje Mentörlüğü</div>
-          <div class="card-desc">Deneyap Türkiye programında proje mentörü olarak gençlerin gelişimine katkı sağladım.</div>
+          <div class="card-title" data-i18n="card1_title">Deneyap Türkiye – Proje Mentörlüğü</div>
+          <div class="card-desc" data-i18n="card1_desc">Deneyap Türkiye programında proje mentörü olarak gençlerin gelişimine katkı sağladım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"Türk Telekom & EGEMSOFT - Tivibu Uygulaması - Yazılım Test Stajyeri","desc":"Ağustos 2024 - Ocak 2025\n\nİşbirliği: Türk Telekom & EGEMSOFT\n\nGörevler ve Katkılarım:\n- Tivibu mobil uygulamasında Black Box (Kara Kutu) test yöntemleri uyguladım.\n- Uygulamanın işlevselliği, kullanıcı arayüzü ve senaryo tabanlı testlerini gerçekleştirdim.\n- Hataları tespit ettim ve raporladım."}'
+        data-full='{"title_tr":"Türk Telekom & EGEMSOFT - Tivibu Uygulaması - Yazılım Test Stajyeri","title_en":"Türk Telekom & EGEMSOFT - Tivibu App - Software Test Intern","desc_tr":"Ağustos 2024 - Ocak 2025\n\nİşbirliği: Türk Telekom & EGEMSOFT\n\nGörevler ve Katkılarım:\n- Tivibu mobil uygulamasında Black Box (Kara Kutu) test yöntemleri uyguladım.\n- Uygulamanın işlevselliği, kullanıcı arayüzü ve senaryo tabanlı testlerini gerçekleştirdim.\n- Hataları tespit ettim ve raporladım.","desc_en":"August 2024 - January 2025\n\nCollaboration: Türk Telekom & EGEMSOFT\n\nResponsibilities and Contributions:\n- Applied Black Box testing methods on the Tivibu mobile application.\n- Performed functionality, user interface, and scenario-based tests.\n- Identified and reported bugs.","img":"images/tivibu.png"}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/tivibu.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">Türk Telekom & EGEMSOFT - Tivibu Uygulaması - Yazılım Test Stajyeri</div>
-          <div class="card-desc">Türk Telekom Tivibu uygulamasında yazılım test stajyeri olarak görev yaptım.</div>
+          <div class="card-title" data-i18n="card2_title">Türk Telekom & EGEMSOFT - Tivibu Uygulaması - Yazılım Test Stajyeri</div>
+          <div class="card-desc" data-i18n="card2_desc">Türk Telekom Tivibu uygulamasında yazılım test stajyeri olarak görev yaptım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -681,55 +726,61 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section>
     <div class="section-head">
       <div>
-        <div class="section-title">Onur Belgeleri</div>
-        <div class="section-sub">Akademik Başarı ve Onurlar</div>
+        <div class="section-title" data-i18n="honors_title">Onur Belgeleri</div>
+        <div class="section-sub" data-i18n="honors_sub">Akademik Başarı ve Onurlar</div>
       </div>
     </div>
 
     <div class="grid" id="onur-grid">
       <article class="card" 
         data-full='{
-          "title":"2024-2025 Bahar Dönemi Yüksek Onur Belgesi",
-          "desc":"2024-2025 akademik yılında üstün başarı göstererek derslerimde yüksek notlar aldım. Bu yüksek onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.",
+          "title_tr":"2024-2025 Bahar Dönemi Yüksek Onur Belgesi",
+          "title_en":"2024-2025 Spring Semester High Honor Certificate",
+          "desc_tr":"2024-2025 akademik yılında üstün başarı göstererek derslerimde yüksek notlar aldım. Bu yüksek onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.",
+          "desc_en":"In the 2024-2025 academic year, I achieved high grades in my courses with outstanding success. I am proud to receive this high honor certificate as a testament to my determination, discipline, and hard work.",
           "img":"images/2024_2025_Bahar_Dönemi_Yüksek_Onur_Belgesi.png",
           "link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=02-08-2025&f=438089737596347176 "
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/2024_2025_Bahar_Dönemi_Yüksek_Onur_Belgesi.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2024-2025 Bahar Dönemi Yüksek Onur Belgesi</div>
-          <div class="card-desc">2024-2025 yılında gösterilen üstün akademik başarı sonucu verilmiştir.</div>
+          <div class="card-title" data-i18n="card3_title">2024-2025 Bahar Dönemi Yüksek Onur Belgesi</div>
+          <div class="card-desc" data-i18n="card3_desc">2024-2025 yılında gösterilen üstün akademik başarı sonucu verilmiştir.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"2024_2025 Güz Dönemi Onur Belgesi","desc":"2024-2025 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","img":"images/2024_2025_Güz_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=02-08-2025&f=148489737755222476"}'
+        data-full='{"title_tr":"2024-2025 Güz Dönemi Onur Belgesi","title_en":"2024-2025 Fall Semester Honor Certificate","desc_tr":"2024-2025 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","desc_en":"In the 2024-2025 academic year, I achieved high grades in my courses with success. I am proud to receive this honor certificate as a testament to my determination, discipline, and hard work.","img":"images/2024_2025_Güz_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=02-08-2025&f=148489737755222476"}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/2024_2025_Güz_Dönemi_Onur_Belgesi.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2024-2025 Güz Dönemi Onur Belgesi</div>
-          <div class="card-desc">2024-2025 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
+          <div class="card-title" data-i18n="card4_title">2024-2025 Güz Dönemi Onur Belgesi</div>
+          <div class="card-desc" data-i18n="card4_desc">2024-2025 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"2022-2023 Bahar Dönemi Onur Belgesi","desc":"2022-2023 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","img":"images/2022_2023_Bahar_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=06-07-2024&f=125755876223867852"}'
+        data-full='{"title_tr":"2022-2023 Bahar Dönemi Onur Belgesi","title_en":"2022-2023 Spring Semester Honor Certificate","desc_tr":"2022-2023 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","desc_en":"In the 2022-2023 academic year, I achieved high grades in my courses with success. I am proud to receive this honor certificate as a testament to my determination, discipline, and hard work.","img":"images/2022_2023_Bahar_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=06-07-2024&f=125755876223867852"}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/2022_2023_Bahar_Dönemi_Onur_Belgesi.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2022-2023 Bahar Dönemi Onur Belgesi</div>
-          <div class="card-desc">2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
+          <div class="card-title" data-i18n="card5_title">2022-2023 Bahar Dönemi Onur Belgesi</div>
+          <div class="card-desc" data-i18n="card5_desc">2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"2022-2023 Güz Dönemi Onur Belgesi","desc":"2022-2023 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","img":"images/2022_2023_Güz_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=06-07-2024&f=522355876216445966"}'
+        data-full='{"title_tr":"2022-2023 Güz Dönemi Onur Belgesi","title_en":"2022-2023 Fall Semester Honor Certificate","desc_tr":"2022-2023 akademik yılında başarı göstererek derslerimde yüksek notlar aldım. Bu onur belgesini, gösterdiğim azim, disiplin ve çalışkanlığımın bir kanıtı olarak almaktan gurur duyuyorum.","desc_en":"In the 2022-2023 academic year, I achieved high grades in my courses with success. I am proud to receive this honor certificate as a testament to my determination, discipline, and hard work.","img":"images/2022_2023_Güz_Dönemi_Onur_Belgesi.png","link":"http://obs.atauni.edu.tr/Belge/GenelBelgeDogrulama.aspx?t=06-07-2024&f=522355876216445966"}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/2022_2023_Güz_Dönemi_Onur_Belgesi.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2022-2023 Güz Dönemi Onur Belgesi</div>
-          <div class="card-desc">2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
+          <div class="card-title" data-i18n="card6_title">2022-2023 Güz Dönemi Onur Belgesi</div>
+          <div class="card-desc" data-i18n="card6_desc">2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -738,44 +789,52 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section>
     <div class="section-head" style="margin-top:28px">
       <div>
-        <div class="section-title">Sertifikalar</div>
-        <div class="section-sub">Online Eğitimler ve Yetkinlikler</div>
+        <div class="section-title" data-i18n="certificates_title">Sertifikalar</div>
+        <div class="section-sub" data-i18n="certificates_sub">Online Eğitimler ve Yetkinlikler</div>
       </div>
     </div>
 
     <div class="grid" id="sert-grid">
       <article class="card" 
         data-full='{
-          "title":"2025 NDG Linux Unhatched",
-          "desc":"2025 yılında NDG Linux Unhatched sertifikasını alarak Linux işletim sisteminin temel komutlarını ve yapısını öğrendim. Bu süreçte komut satırı kullanımı, dosya yönetimi ve temel sistem işlemleri konusunda pratik yaparak temel düzeyde yetkinlik kazandım. Sertifika, Linux dünyasına giriş yapmamda önemli bir adımdır."
+          "title_tr":"2025 NDG Linux Unhatched",
+          "title_en":"2025 NDG Linux Unhatched",
+          "desc_tr":"2025 yılında NDG Linux Unhatched sertifikasını alarak Linux işletim sisteminin temel komutlarını ve yapısını öğrendim. Bu süreçte komut satırı kullanımı, dosya yönetimi ve temel sistem işlemleri konusunda pratik yaparak temel düzeyde yetkinlik kazandım. Sertifika, Linux dünyasına giriş yapmamda önemli bir adımdır.",
+          "desc_en":"In 2025, I earned the NDG Linux Unhatched certificate, learning the basic commands and structure of the Linux operating system. Through this process, I gained fundamental skills in command-line usage, file management, and basic system operations. This certificate was an important step in my introduction to the Linux world."
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/NDG_Linux_Unhatched.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2025 NDG Linux Unhatched</div>
-          <div class="card-desc">Linux işletim sisteminin temel komutlarını ve yapısını öğrenerek temel seviyede yetkinlik kazandım.</div>
+          <div class="card-title" data-i18n="card7_title">2025 NDG Linux Unhatched</div>
+          <div class="card-desc" data-i18n="card7_desc">Linux işletim sisteminin temel komutlarını ve yapısını öğrenerek temel seviyede yetkinlik kazandım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
         data-full='{
-          "title":"2025 Introduction to Cybersecurity",
-          "desc":"2025 yılında Introduction to Cybersecurity sertifikasını alarak siber güvenliğin temel kavramlarını ve prensiplerini öğrendim. Bu süreçte bilgisayar sistemlerini, ağları ve verileri koruma yöntemleri hakkında yeteneklerimi geliştirdim. Siber tehditler ve savunma teknikleri konusunda farkındalığım arttı ve güvenli dijital ortamlar oluşturma konusunda ilk adımlarımı attım.",
+          "title_tr":"2025 Introduction to Cybersecurity",
+          "title_en":"2025 Introduction to Cybersecurity",
+          "desc_tr":"2025 yılında Introduction to Cybersecurity sertifikasını alarak siber güvenliğin temel kavramlarını ve prensiplerini öğrendim. Bu süreçte bilgisayar sistemlerini, ağları ve verileri koruma yöntemleri hakkında yeteneklerimi geliştirdim. Siber tehditler ve savunma teknikleri konusunda farkındalığım arttı ve güvenli dijital ortamlar oluşturma konusunda ilk adımlarımı attım.",
+          "desc_en":"In 2025, I earned the Introduction to Cybersecurity certificate, learning the fundamental concepts and principles of cybersecurity. Through this process, I developed skills in protecting computer systems, networks, and data. My awareness of cyber threats and defense techniques increased, and I took my first steps in creating secure digital environments.",
           "img":"images/Indroduction_to_Cybersecurity.png",
           "link":"https://www.credly.com/badges/96b0cd6b-bb85-4d95-b1a9-f94697b7263a/public_url"
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/Indroduction_to_Cybersecurity.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">2025 Introduction to Cybersecurity</div>
-          <div class="card-desc">Siber güvenlik temel kavramlarını öğrenerek sistemlerin korunması hakkında bilgi edindim.</div>
+          <div class="card-title" data-i18n="card8_title">2025 Introduction to Cybersecurity</div>
+          <div class="card-desc" data-i18n="card8_desc">Siber güvenlik temel kavramlarını öğrenerek sistemlerin korunması hakkında bilgi edindim.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
         data-full='{
-          "title":"2024 Milli Teknoloji Akademisi Otonom Sürüş Teknolojileri Temel Eğitim Sertifikası",
-          "desc":"2024 yılında Milli Teknoloji Akademisi tarafından verilen Otonom Sürüş Teknolojileri Temel Eğitim Sertifikasını aldım. Bu eğitim sürecinde otonom sürüş sistemlerinin çalışma prensipleri, sensör teknolojileri, yapay zeka uygulamaları ve güvenlik protokolleri hakkında temel bilgiler edindim. Geleceğin otomotiv teknolojileri konusunda bilinçlenerek, bu alandaki yeniliklere adaptasyon yeteneğimi geliştirdim.",
+          "title_tr":"2024 Milli Teknoloji Akademisi Otonom Sürüş Teknolojileri Temel Eğitim Sertifikası",
+          "title_en":"2024 National Technology Academy Autonomous Driving Technologies Basic Training Certificate",
+          "desc_tr":"2024 yılında Milli Teknoloji Akademisi tarafından verilen Otonom Sürüş Teknolojileri Temel Eğitim Sertifikasını aldım. Bu eğitim sürecinde otonom sürüş sistemlerinin çalışma prensipleri, sensör teknolojileri, yapay zeka uygulamaları ve güvenlik protokolleri hakkında temel bilgiler edindim. Geleceğin otomotiv teknolojileri konusunda bilinçlenerek, bu alandaki yeniliklere adaptasyon yeteneğimi geliştirdim.",
+          "desc_en":"In 2024, I received the Autonomous Driving Technologies Basic Training Certificate from the National Technology Academy. During this training, I gained fundamental knowledge about the working principles of autonomous driving systems, sensor technologies, AI applications, and security protocols. I became more aware of future automotive technologies and improved my ability to adapt to innovations in this field.",
           "img":"images/Milli_Teknoloji_Akademisi_Otonom Sürüş_Teknolojileri_Temel_Eğitim_Sertifikası.png",
           "link":"https://drdogrulama.sanayi.gov.tr/tr/verify/55037533600533/"
         }'
@@ -784,15 +843,18 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
           <img src="images/Milli_Teknoloji_Akademisi_Otonom Sürüş_Teknolojileri_Temel_Eğitim_Sertifikası.png" alt="">
         </div>
         <div class="card-body">
-          <div class="card-title">2024 Milli Teknoloji Akademisi Otonom Sürüş Teknolojileri Temel Eğitim Sertifikası</div>
-          <div class="card-desc">Otonom sürüş teknolojilerinin temel prensiplerini öğrenerek bu alanda bilgi edindim.</div>
+          <div class="card-title" data-i18n="card9_title">2024 Milli Teknoloji Akademisi Otonom Sürüş Teknolojileri Temel Eğitim Sertifikası</div>
+          <div class="card-desc" data-i18n="card9_desc">Otonom sürüş teknolojilerinin temel prensiplerini öğrenerek bu alanda bilgi edindim.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
         data-full='{
-          "title":"2024 TEKNOFEST Başarı Sertifikası",
-          "desc":"2024 yılında TEKNOFEST yarışmasında gösterdiğim üstün performans ve başarılı proje çalışmaları sonucunda Turizm Teknolojileri alanında Başarı Sertifikası almaya hak kazandım. Bu sertifika, yenilikçi yaklaşımımı, takım çalışmasına yatkınlığımı ve teknoloji alanındaki yetkinliklerimi resmi olarak belgelemektedir. TEKNOFEST deneyimim, kariyerimde önemli bir dönüm noktasıdır.",
+          "title_tr":"2024 TEKNOFEST Başarı Sertifikası",
+          "title_en":"2024 TEKNOFEST Achievement Certificate",
+          "desc_tr":"2024 yılında TEKNOFEST yarışmasında gösterdiğim üstün performans ve başarılı proje çalışmaları sonucunda Turizm Teknolojileri alanında Başarı Sertifikası almaya hak kazandım. Bu sertifika, yenilikçi yaklaşımımı, takım çalışmasına yatkınlığımı ve teknoloji alanındaki yetkinliklerimi resmi olarak belgelemektedir. TEKNOFEST deneyimim, kariyerimde önemli bir dönüm noktasıdır.",
+          "desc_en":"In 2024, I earned an Achievement Certificate in Tourism Technologies at TEKNOFEST due to my outstanding performance and successful project work. This certificate officially documents my innovative approach, teamwork skills, and expertise in technology. My TEKNOFEST experience was a significant turning point in my career.",
           "img":"images/2024_TEKNOFEST_Basarı_Sertifikası.png",
           "link":"https://drdogrulama.sanayi.gov.tr/tr/verify/10804978786727"
         }'
@@ -801,9 +863,10 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
           <img src="images/2024_TEKNOFEST_Basarı_Sertifikası.png" alt="">
         </div>
         <div class="card-body">
-          <div class="card-title">2024 TEKNOFEST Başarı Sertifikası</div>
-          <div class="card-desc">TEKNOFEST 2024'te elde ettiğim başarıyla yeteneklerimi ve projelerimi tescilledim.</div>
+          <div class="card-title" data-i18n="card10_title">2024 TEKNOFEST Başarı Sertifikası</div>
+          <div class="card-desc" data-i18n="card10_desc">TEKNOFEST 2024'te elde ettiğim başarıyla yeteneklerimi ve projelerimi tescilledim.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -812,25 +875,28 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section>
     <div class="section-head" style="margin-top:28px">
       <div>
-        <div class="section-title">Medya Temsil</div>
-        <div class="section-sub">Basında Yer Alan Röportajlar / Projeler</div>
+        <div class="section-title" data-i18n="media_title">Medya Temsil</div>
+        <div class="section-sub" data-i18n="media_sub">Basında Yer Alan Röportajlar / Projeler</div>
       </div>
     </div>
 
     <div class="grid" id="medya-grid">
       <article class="card" 
         data-full='{
-          "title":"TRT Erzurum Radyosu – Röportaj Katılımı",
-          "desc":"6 Kasım 2024 Saat: 10.20\n\nProgram: Eğitim ve Bilim Dünyası Köşesi\n\nİçerik ve Katkılarım:\n- Kulübümüz ve yürüttüğümüz projeleri tanıtmak üzere TRT Erzurum Radyosuna konuk olduk.\n- Röportaj kapsamında, proje hedeflerimiz, sosyal katkılarımız ve teknik süreçler hakkında bilgi verdim.\n- İletişim ve temsil yeteneklerimi geliştirme fırsatı yakaladım.",
+          "title_tr":"TRT Erzurum Radyosu – Röportaj Katılımı",
+          "title_en":"TRT Erzurum Radio – Interview Participation",
+          "desc_tr":"6 Kasım 2024 Saat: 10.20\n\nProgram: Eğitim ve Bilim Dünyası Köşesi\n\nİçerik ve Katkılarım:\n- Kulübümüz ve yürüttüğümüz projeleri tanıtmak üzere TRT Erzurum Radyosuna konuk olduk.\n- Röportaj kapsamında, proje hedeflerimiz, sosyal katkılarımız ve teknik süreçler hakkında bilgi verdim.\n- İletişim ve temsil yeteneklerimi geliştirme fırsatı yakaladım.",
+          "desc_en":"November 6, 2024 at 10:20\n\nProgram: Education and Science World Corner\n\nContent and Contributions:\n- I was a guest on TRT Erzurum Radio to introduce our club and the projects we are conducting.\n- During the interview, I provided information about our project goals, social contributions, and technical processes.\n- I had the opportunity to improve my communication and representation skills.",
           "img":"images/trt_Erzurum_Radyo_Roportaj.png",
           "link":"https://www.facebook.com/erzurumradyosu/posts/06112024-%C3%A7ar%C5%9Fambadinlemek-i%C3%A7in-%EF%B8%8F-radyotrtnettr-trtdinlecom/1201257708263195/"
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/trt_Erzurum_Radyo_Roportaj.png" alt=""></div>
         <div class="card-body">
-          <div class="card-title">TRT Erzurum Radyosu – Röportaj Katılımı</div>
-          <div class="card-desc">Kulübümüzü ve yürüttüğümüz projeleri tanıtmak üzere TRT Erzurum Radyosu'na konuk olduk.</div>
+          <div class="card-title" data-i18n="card11_title">TRT Erzurum Radyosu – Röportaj Katılımı</div>
+          <div class="card-desc" data-i18n="card11_desc">Kulübümüzü ve yürüttüğümüz projeleri tanıtmak üzere TRT Erzurum Radyosu'na konuk olduk.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -839,30 +905,32 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section>
     <div class="section-head" style="margin-top:28px">
       <div>
-        <div class="section-title">Liderlik & Kulüp Deneyimleri</div>
-        <div class="section-sub">Kulüp Yönetimi ve Organizasyon</div>
+        <div class="section-title" data-i18n="leadership_title">Liderlik & Kulüp Deneyimleri</div>
+        <div class="section-sub" data-i18n="leadership_sub">Kulüp Yönetimi ve Organizasyon</div>
       </div>
     </div>
 
     <div class="grid" id="lider-grid">
       <article class="card" 
-        data-full='{"title":"Atatürk Üniversitesi Yüksek Teknoloji Topluluğu – Denetleme Kurulu Başkanı","desc":"Ocak 2023 - Hâlâ devam ediyor\n\nAtatürk Üniversitesi\n\nGörevler ve Katkılarım:\n- Topluluğun faaliyet ve mali süreçlerinin denetimini sağladım.\n- Etkinliklerin düzenlenmesi, proje bütçelerinin değerlendirilmesi ve karar alma süreçlerinde aktif rol aldım.\n- Kulüp içi iletişimi ve şeffaflığı sağlamak adına raporlamalar ve toplantılar yürüttüm.\n- Hem teknik etkinliklere seminer, atölye katkı sundum, hem de idari görevler üstlendim."}'
+        data-full='{"title_tr":"Atatürk Üniversitesi Yüksek Teknoloji Topluluğu – Denetleme Kurulu Başkanı","title_en":"Atatürk University High Technology Community – Audit Board President","desc_tr":"Ocak 2023 - Hâlâ devam ediyor\n\nAtatürk Üniversitesi\n\nGörevler ve Katkılarım:\n- Topluluğun faaliyet ve mali süreçlerinin denetimini sağladım.\n- Etkinliklerin düzenlenmesi, proje bütçelerinin değerlendirilmesi ve karar alma süreçlerinde aktif rol aldım.\n- Kulüp içi iletişimi ve şeffaflığı sağlamak adına raporlamalar ve toplantılar yürüttüm.\n- Hem teknik etkinliklere seminer, atölye katkı sundum, hem de idari görevler üstlendim.","desc_en":"January 2023 - Present\n\nAtatürk University\n\nResponsibilities and Contributions:\n- Supervised the communitys activities and financial processes.\n- Played an active role in organizing events, evaluating project budgets, and decision-making processes.\n- Conducted reporting and meetings to ensure intra-club communication and transparency.\n- Contributed to technical events such as seminars and workshops, while also undertaking administrative duties."}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/kulup_Denetleme_Kurulu_Baskanı.svg" alt=""></div>
         <div class="card-body">
-          <div class="card-title">Atatürk Üniversitesi Yüksek Teknoloji Topluluğu – Denetleme Kurulu Başkanı</div>
-          <div class="card-desc">Atatürk Üniversitesi Yüksek Teknoloji Topluluğu'nda Denetleme Kurulu Başkanı olarak görev aldım.</div>
+          <div class="card-title" data-i18n="card12_title">Atatürk Üniversitesi Yüksek Teknoloji Topluluğu – Denetleme Kurulu Başkanı</div>
+          <div class="card-desc" data-i18n="card12_desc">Atatürk Üniversitesi Yüksek Teknoloji Topluluğu'nda Denetleme Kurulu Başkanı olarak görev aldım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"ATEC Takımı – Takım Kaptanı / TEKNOFEST Finalisti","desc":"Ocak 2023 - Ekim 2024\n\nTEKNOFEST – Türkiye Finali\n\nGörevler ve Katkılarım:\n- 8 kişilik ATEC takımının takım kaptanlığı görevini üstlendim.\n- Proje planlaması, görev dağılımı, teknik koordinasyon ve yarışma iletişim süreçlerini yönettim.\n- TEKNOFEST 2024 kapsamında yapılan yarışmalarda finale yükselme başarısı elde ettik.\n- Teknik sunumlar, jüri görüşmeleri ve saha uygulamaları aşamalarında aktif rol aldım."}'
+        data-full='{"title_tr":"ATEC Takımı – Takım Kaptanı / TEKNOFEST Finalisti","title_en":"ATEC Team – Team Captain / TEKNOFEST Finalist","desc_tr":"Ocak 2023 - Ekim 2024\n\nTEKNOFEST – Türkiye Finali\n\nGörevler ve Katkılarım:\n- 8 kişilik ATEC takımının takım kaptanlığı görevini üstlendim.\n- Proje planlaması, görev dağılımı, teknik koordinasyon ve yarışma iletişim süreçlerini yönettim.\n- TEKNOFEST 2024 kapsamında yapılan yarışmalarda finale yükselme başarısı elde ettik.\n- Teknik sunumlar, jüri görüşmeleri ve saha uygulamaları aşamalarında aktif rol aldım.","desc_en":"January 2023 - October 2024\n\nTEKNOFEST – Turkey Final\n\nResponsibilities and Contributions:\n- Served as the team captain of the 8-member ATEC team.\n- Managed project planning, task distribution, technical coordination, and competition communication processes.\n- Achieved success in advancing to the finals in competitions held as part of TEKNOFEST 2024.\n- Played an active role in technical presentations, jury meetings, and field applications."}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/atec.png" alt="ATEC Takımı"></div>
         <div class="card-body">
-          <div class="card-title">ATEC Takımı – Takım Kaptanı / TEKNOFEST Finalisti</div>
-          <div class="card-desc">2024 yılında ATEC takımının kaptanı olarak TEKNOFEST'te final aşamasına çıktık.</div>
+          <div class="card-title" data-i18n="card13_title">ATEC Takımı – Takım Kaptanı / TEKNOFEST Finalisti</div>
+          <div class="card-desc" data-i18n="card13_desc">2024 yılında ATEC takımının kaptanı olarak TEKNOFEST'te final aşamasına çıktık.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -871,48 +939,55 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <section style="margin-bottom:60px">
     <div class="section-head" style="margin-top:28px">
       <div>
-        <div class="section-title">Organizasyon & Gönüllülük</div>
-        <div class="section-sub">Sosyal Projeler ve Etkinlikler</div>
+        <div class="section-title" data-i18n="volunteering_title">Organizasyon & Gönüllülük</div>
+        <div class="section-sub" data-i18n="volunteering_sub">Sosyal Projeler ve Etkinlikler</div>
       </div>
     </div>
 
     <div class="grid" id="org-grid">
       <article class="card" 
         data-full='{
-          "title":"Deneyap Türkiye – Final Sergisi Görevi & Mentörlük",
-          "desc":"18 Mayıs 2025\n\nYer: Bilim Erzurum\n\nAçıklama:\n- Deneyap Takımlar Dönemi kapsamında mentörlüğünü yaptığım öğrencilerin projelerini başarıyla tamamlaması sonrası, final sergisinde görev aldım.\n- Öğrencilerin final sunumlarına hazırlık sürecini yönettim, teknik ve sunum desteği sağladım.\n- Final sahnesinde koordinasyon, sunum organizasyonu ve mentör temsil görevlerinde aktif rol aldım.\n- Teknoloji, takım çalışması ve öğrenci gelişimini destekleyen bir ortamda liderlik becerilerimi geliştirdim.",
+          "title_tr":"Deneyap Türkiye – Final Sergisi Görevi & Mentörlük",
+          "title_en":"Deneyap Turkey – Final Exhibition Duty & Mentorship",
+          "desc_tr":"18 Mayıs 2025\n\nYer: Bilim Erzurum\n\nAçıklama:\n- Deneyap Takımlar Dönemi kapsamında mentörlüğünü yaptığım öğrencilerin projelerini başarıyla tamamlaması sonrası, final sergisinde görev aldım.\n- Öğrencilerin final sunumlarına hazırlık sürecini yönettim, teknik ve sunum desteği sağladım.\n- Final sahnesinde koordinasyon, sunum organizasyonu ve mentör temsil görevlerinde aktif rol aldım.\n- Teknoloji, takım çalışması ve öğrenci gelişimini destekleyen bir ortamda liderlik becerilerimi geliştirdim.",
+          "desc_en":"May 18, 2025\n\nLocation: Bilim Erzurum\n\nDescription:\n- After the successful completion of projects by students I mentored during the Deneyap Teams period, I took part in the final exhibition.\n- Managed the preparation process for students final presentations, providing technical and presentation support.\n- Played an active role in coordination, presentation organization, and mentor representation on the final stage.\n- Developed leadership skills in an environment that supports technology, teamwork, and student development.",
           "link":"https://drdogrulama.sanayi.gov.tr/tr/verify/57878458491115/"
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/deneyap_Mentor.svg" alt="Deneyap Türkiye Mentörlük"></div>
         <div class="card-body">
-          <div class="card-title">Deneyap Türkiye – Final Sergisi Görevi & Mentörlük</div>
-          <div class="card-desc">2025 yılında Deneyap Türkiye kapsamında düzenlenen final sergisinde görev aldım.</div>
+          <div class="card-title" data-i18n="card14_title">Deneyap Türkiye – Final Sergisi Görevi & Mentörlük</div>
+          <div class="card-desc" data-i18n="card14_desc">2025 yılında Deneyap Türkiye kapsamında düzenlenen final sergisinde görev aldım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
         data-full='{
-          "title":"Mühendislik Buluşması – Etkinlik Görevlisi",
-          "desc":"8 Kasım 2024 Saat 14.00\n\nYer: Atatürk Üniversitesi, Mühendislik Fakültesi Konferans Salonu\n\nAçıklama:\n- Farklı mühendislik alanlarından akademisyenlerin katıldığı bu konferansın organizasyon sürecinde aktif rol aldım.\n- Teknik hazırlık ve koordinasyon görevlerinde sorumluluk üstlendim.",
+          "title_tr":"Mühendislik Buluşması – Etkinlik Görevlisi",
+          "title_en":"Engineering Meeting – Event Staff",
+          "desc_tr":"8 Kasım 2024 Saat 14.00\n\nYer: Atatürk Üniversitesi, Mühendislik Fakültesi Konferans Salonu\n\nAçıklama:\n- Farklı mühendislik alanlarından akademisyenlerin katıldığı bu konferansın organizasyon sürecinde aktif rol aldım.\n- Teknik hazırlık ve koordinasyon görevlerinde sorumluluk üstlendim.",
+          "desc_en":"November 8, 2024 at 14:00\n\nLocation: Atatürk University, Faculty of Engineering Conference Hall\n\nDescription:\n- Played an active role in the organization of this conference attended by academics from various engineering fields.\n- Took responsibility for technical preparations and coordination tasks.",
           "link":"https://birimler.atauni.edu.tr/muhendislik-fakultesi/2024/11/14/2024-muhendislik-bulusmasi-gerceklestirildi/"
         }'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/muhendislik_bulusmasi.svg" alt="Mühendislik Buluşması Etkinlik Görevlisi"></div>
         <div class="card-body">
-          <div class="card-title">Mühendislik Buluşması – Etkinlik Görevlisi</div>
-          <div class="card-desc">2024 yılında düzenlenen Mühendislik Buluşması'nda görev aldım.</div>
+          <div class="card-title" data-i18n="card15_title">Mühendislik Buluşması – Etkinlik Görevlisi</div>
+          <div class="card-desc" data-i18n="card15_desc">2024 yılında düzenlenen Mühendislik Buluşması'nda görev aldım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
 
       <article class="card" 
-        data-full='{"title":"KUDAKAF 2023 – Kulüp Tanıtım Görevlisi & Mentörlük","desc":"18-19 Aralık 2023\n\nYer: Kuzey Doğu Anadolu Kariyer Fuarı (KUDAKAF) - Erzurum\n\nAçıklama:\n- Kulübümüzü tanıtmak üzere KUDAKAF 2023 te görev aldım.\n- Ziyaretçilere kulüp faaliyetleri, projeler ve öğrenci çalışmaları hakkında bilgi verdim.\n- Fuara katılan misafirlere soruların yanıtlanması ve stant düzeni, kurulumu gibi sorumluluklar üstlendim.\n- Takım çalışması ve organizasyon becerilerimi geliştirme fırsatı buldum."}'
+        data-full='{"title_tr":"KUDAKAF 2023 – Kulüp Tanıtım Görevlisi & Mentörlük","title_en":"KUDAKAF 2023 – Club Promotion Staff & Mentorship","desc_tr":"18-19 Aralık 2023\n\nYer: Kuzey Doğu Anadolu Kariyer Fuarı (KUDAKAF) - Erzurum\n\nAçıklama:\n- Kulübümüzü tanıtmak üzere KUDAKAF 2023 te görev aldım.\n- Ziyaretçilere kulüp faaliyetleri, projeler ve öğrenci çalışmaları hakkında bilgi verdim.\n- Fuara katılan misafirlere soruların yanıtlanması ve stant düzeni, kurulumu gibi sorumluluklar üstlendim.\n- Takım çalışması ve organizasyon becerilerimi geliştirme fırsatı buldum.","desc_en":"December 18-19, 2023\n\nLocation: Northeast Anatolia Career Fair (KUDAKAF) - Erzurum\n\nDescription:\n- Worked at KUDAKAF 2023 to promote our club.\n- Provided information to visitors about club activities, projects, and student work.\n- Took responsibility for answering questions from guests, booth setup, and organization.\n- Had the opportunity to develop teamwork and organizational skills."}'
         onclick="openOverlay(this)">
         <div class="thumb"><img src="images/kudakaf.svg" alt="KUDAKAF 2023 Kulüp Tanıtım"></div>
         <div class="card-body">
-          <div class="card-title">KUDAKAF 2023 – Kulüp Tanıtım Görevlisi</div>
-          <div class="card-desc">2023 yılında KUDAKAF kapsamında düzenlenen fuarda kulüp tanıtım görevlisi olarak yer aldım.</div>
+          <div class="card-title" data-i18n="card16_title">KUDAKAF 2023 – Kulüp Tanıtım Görevlisi</div>
+          <div class="card-desc" data-i18n="card16_desc">2023 yılında KUDAKAF kapsamında düzenlenen fuarda kulüp tanıtım görevlisi olarak yer aldım.</div>
         </div>
+        <span class="read-more" data-i18n="read_more"></span>
       </article>
     </div>
   </section>
@@ -927,8 +1002,8 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         <h3 id="overlay-title"></h3>
         <p id="overlay-desc"></p>
         <div style="margin-top:auto;display:flex;gap:10px">
-          <a class="btn" id="overlay-link" href="#" target="_blank" rel="noopener">Yeterlilik Belgesini Göster</a>
-          <button class="btn secondary" id="overlay-close">Kapat</button>
+          <a class="btn" id="overlay-link" href="#" target="_blank" rel="noopener" data-i18n="show_certificate">Yeterlilik Belgesini Göster</a>
+          <button class="btn secondary" id="overlay-close" data-i18n="close">Kapat</button>
         </div>
       </div>
     </div>
@@ -937,11 +1012,157 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
 
   <footer class="site-footer">
     <div class="container">
-      <p>© 2025 Erhan Kahveci. Tüm hakları saklıdır.</p>
+      <p>© 2025 Erhan Kahveci. <span data-i18n="rights">Tüm hakları saklıdır.</span></p>
     </div>
   </footer>
 
   <script>
+    // Dil çeviri verileri
+    const translations = {
+      tr: {
+        "name": "Erhan Kahveci",
+        "title": "Bilgisayar Mühendisliği Öğrencisi • Sistem & Yazılım • Blue Team",
+        "contact": "İletişim",
+        "email": "E-posta",
+        "cv_tr": "CV PDF TR",
+        "cv_en": "CV PDF EN",
+        "hero_title": "Yazılım Geliştirici Adayı | Takım Lideri & Mentor",
+        "hero_desc": "Merhaba, ben Erhan Kahveci, Atatürk Üniversitesi Bilgisayar Mühendisliği 4. sınıf öğrencisiyim. Eğitimim boyunca programlama dilleri (C++, Python, MATLAB, Java), veri tabanı yönetimi (SQL, SQLite), web ve mobil uygulama geliştirme (ASP.NET, Flutter) ile kullanıcı arayüzü tasarımı (Figma) konularında deneyim kazandım. Ayrıca GNU/Linux işletim sistemleri, komut satırı betik yazımı ve paralel programlama alanlarında da derinlemesine bilgi sahibiyim.\n\nDeneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması becerilerimi geliştirdim. TEKNOFEST gibi önemli etkinliklerde takım kaptanlığı ve proje yönetimi tecrübeleri edindim. Ayrıca Tivibu'da yazılım test stajyeri olarak çalışma fırsatı buldum. Teknoloji alanında yenilikçi çözümler üretmek ve kendimi sürekli geliştirmek hedefiyle kariyerime yön veriyorum.",
+        "role": "Bilgisayar Mühendisliği Öğrencisi",
+        "achievements": "•Teknofest Finalisti • Tivibu Yazılım Test Stajyeri • Mentör <br>•Denetleme Kurulu Başkanı",
+        "experience_title": "İş Deneyimi",
+        "experience_sub": "Staj ve İş Tecrübeleri",
+        "card1_title": "Deneyap Türkiye – Proje Mentörlüğü",
+        "card1_desc": "Deneyap Türkiye programında proje mentörü olarak gençlerin gelişimine katkı sağladım.",
+        "card2_title": "Türk Telekom & EGEMSOFT - Tivibu Uygulaması - Yazılım Test Stajyeri",
+        "card2_desc": "Türk Telekom Tivibu uygulamasında yazılım test stajyeri olarak görev yaptım.",
+        "honors_title": "Onur Belgeleri",
+        "honors_sub": "Akademik Başarı ve Onurlar",
+        "card3_title": "2024-2025 Bahar Dönemi Yüksek Onur Belgesi",
+        "card3_desc": "2024-2025 yılında gösterilen üstün akademik başarı sonucu verilmiştir.",
+        "card4_title": "2024-2025 Güz Dönemi Onur Belgesi",
+        "card4_desc": "2024-2025 yılında gösterilen akademik başarı sonucu verilmiştir.",
+        "card5_title": "2022-2023 Bahar Dönemi Onur Belgesi",
+        "card5_desc": "2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.",
+        "card6_title": "2022-2023 Güz Dönemi Onur Belgesi",
+        "card6_desc": "2022-2023 yılında gösterilen akademik başarı sonucu verilmiştir.",
+        "certificates_title": "Sertifikalar",
+        "certificates_sub": "Online Eğitimler ve Yetkinlikler",
+        "card7_title": "2025 NDG Linux Unhatched",
+        "card7_desc": "Linux işletim sisteminin temel komutlarını ve yapısını öğrenerek temel seviyede yetkinlik kazandım.",
+        "card8_title": "2025 Introduction to Cybersecurity",
+        "card8_desc": "Siber güvenlik temel kavramlarını öğrenerek sistemlerin korunması hakkında bilgi edindim.",
+        "card9_title": "2024 Milli Teknoloji Akademisi Otonom Sürüş Teknolojileri Temel Eğitim Sertifikası",
+        "card9_desc": "Otonom sürüş teknolojilerinin temel prensiplerini öğrenerek bu alanda bilgi edindim.",
+        "card10_title": "2024 TEKNOFEST Başarı Sertifikası",
+        "card10_desc": "TEKNOFEST 2024'te elde ettiğim başarıyla yeteneklerimi ve projelerimi tescilledim.",
+        "media_title": "Medya Temsil",
+        "media_sub": "Basında Yer Alan Röportajlar / Projeler",
+        "card11_title": "TRT Erzurum Radyosu – Röportaj Katılımı",
+        "card11_desc": "Kulübümüzü ve yürüttüğümüz projeleri tanıtmak üzere TRT Erzurum Radyosu'na konuk olduk.",
+        "leadership_title": "Liderlik & Kulüp Deneyimleri",
+        "leadership_sub": "Kulüp Yönetimi ve Organizasyon",
+        "card12_title": "Atatürk Üniversitesi Yüksek Teknoloji Topluluğu – Denetleme Kurulu Başkanı",
+        "card12_desc": "Atatürk Üniversitesi Yüksek Teknoloji Topluluğu'nda Denetleme Kurulu Başkanı olarak görev aldım.",
+        "card13_title": "ATEC Takımı – Takım Kaptanı / TEKNOFEST Finalisti",
+        "card13_desc": "2024 yılında ATEC takımının kaptanı olarak TEKNOFEST'te final aşamasına çıktık.",
+        "volunteering_title": "Organizasyon & Gönüllülük",
+        "volunteering_sub": "Sosyal Projeler ve Etkinlikler",
+        "card14_title": "Deneyap Türkiye – Final Sergisi Görevi & Mentörlük",
+        "card14_desc": "2025 yılında Deneyap Türkiye kapsamında düzenlenen final sergisinde görev aldım.",
+        "card15_title": "Mühendislik Buluşması – Etkinlik Görevlisi",
+        "card15_desc": "2024 yılında düzenlenen Mühendislik Buluşması'nda görev aldım.",
+        "card16_title": "KUDAKAF 2023 – Kulüp Tanıtım Görevlisi",
+        "card16_desc": "2023 yılında KUDAKAF kapsamında düzenlenen fuarda kulüp tanıtım görevlisi olarak yer aldım.",
+        "show_certificate": "Yeterlilik Belgesini Göster",
+        "close": "Kapat",
+        "rights": "Tüm hakları saklıdır.",
+        "read_more": "Devamını oku"
+      },
+      en: {
+        "name": "Erhan Kahveci",
+        "title": "Computer Engineering Student • Systems & Software • Blue Team",
+        "contact": "Contact",
+        "email": "Email",
+        "cv_tr": "CV PDF TR",
+        "cv_en": "CV PDF EN",
+        "hero_title": "Software Developer Candidate | Team Leader & Mentor",
+        "hero_desc": "Hello, I'm Erhan Kahveci, a 4th-year Computer Engineering student at Atatürk University. Throughout my education, I have gained experience in programming languages (C++, Python, MATLAB, Java), database management (SQL, SQLite), web and mobile application development (ASP.NET, Flutter), and user interface design (Figma). Additionally, I have in-depth knowledge of GNU/Linux operating systems, command-line scripting, and parallel programming.\n\nThrough mentoring at Deneyap Türkiye, I developed leadership and teamwork skills. I gained experience in team captaincy and project management at important events like TEKNOFEST. I also had the opportunity to work as a software testing intern at Tivibu. I am directing my career with the goal of producing innovative solutions in technology and constantly improving myself.",
+        "role": "Computer Engineering Student",
+        "achievements": "•TEKNOFEST Finalist • Tivibu Software Test Intern • Mentor <br>•Audit Board President",
+        "experience_title": "Work Experience",
+        "experience_sub": "Internships and Professional Experience",
+        "card1_title": "Deneyap Turkey - Project Mentorship",
+        "card1_desc": "I contributed to the development of youth as a project mentor in the Deneyap Turkey program.",
+        "card2_title": "Türk Telekom & EGEMSOFT - Tivibu App - Software Test Intern",
+        "card2_desc": "Worked as a software test intern for Türk Telekom's Tivibu application.",
+        "honors_title": "Honor Certificates",
+        "honors_sub": "Academic Achievement and Honors",
+        "card3_title": "2024-2025 Spring Semester High Honor Certificate",
+        "card3_desc": "Awarded for outstanding academic achievement in the 2024-2025 academic year.",
+        "card4_title": "2024-2025 Fall Semester Honor Certificate",
+        "card4_desc": "Awarded for academic achievement in the 2024-2025 academic year.",
+        "card5_title": "2022-2023 Spring Semester Honor Certificate",
+        "card5_desc": "Awarded for academic achievement in the 2022-2023 academic year.",
+        "card6_title": "2022-2023 Fall Semester Honor Certificate",
+        "card6_desc": "Awarded for academic achievement in the 2022-2023 academic year.",
+        "certificates_title": "Certificates",
+        "certificates_sub": "Online Trainings and Competencies",
+        "card7_title": "2025 NDG Linux Unhatched",
+        "card7_desc": "Gained basic proficiency by learning the fundamental commands and structure of the Linux operating system.",
+        "card8_title": "2025 Introduction to Cybersecurity",
+        "card8_desc": "Learned the fundamental concepts of cybersecurity and gained knowledge about protecting systems.",
+        "card9_title": "2024 National Technology Academy Autonomous Driving Technologies Basic Training Certificate",
+        "card9_desc": "Gained knowledge in this field by learning the basic principles of autonomous driving technologies.",
+        "card10_title": "2024 TEKNOFEST Achievement Certificate",
+        "card10_desc": "Certified my skills and projects with my success at TEKNOFEST 2024.",
+        "media_title": "Media Representation",
+        "media_sub": "Interviews/Projects Featured in Media",
+        "card11_title": "TRT Erzurum Radio – Interview Participation",
+        "card11_desc": "I was a guest on TRT Erzurum Radio to introduce our club and the projects we are conducting.",
+        "leadership_title": "Leadership & Club Experiences",
+        "leadership_sub": "Club Management and Organization",
+        "card12_title": "Atatürk University High Technology Community – Audit Board President",
+        "card12_desc": "Served as President of the Audit Board at Atatürk University High Technology Community.",
+        "card13_title": "ATEC Team – Team Captain / TEKNOFEST Finalist",
+        "card13_desc": "As captain of the ATEC team, we reached the finals at TEKNOFEST in 2024.",
+        "volunteering_title": "Organization & Volunteering",
+        "volunteering_sub": "Social Projects and Events",
+        "card14_title": "Deneyap Turkey – Final Exhibition Duty & Mentorship",
+        "card14_desc": "Served at the final exhibition organized within the scope of Deneyap Turkey in 2025.",
+        "card15_title": "Engineering Meeting – Event Staff",
+        "card15_desc": "Served as event staff at the Engineering Meeting held in 2024.",
+        "card16_title": "KUDAKAF 2023 – Club Promotion Staff",
+        "card16_desc": "Served as club promotion staff at the fair organized within the scope of KUDAKAF in 2023.",
+        "show_certificate": "Show Certificate",
+        "close": "Close",
+        "rights": "All rights reserved.",
+        "read_more": "Read more"
+      }
+    };
+
+    // Dil değiştirme fonksiyonu
+    function setLanguage(lang) {
+      // "Devamını oku" metinlerini güncelle
+      document.querySelectorAll('.read-more').forEach(el => {
+        el.textContent = translations[lang]['read_more'];
+      });
+      
+      // Tüm çeviri öğelerini güncelle
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          element.innerHTML = translations[lang][key];
+        }
+      });
+      
+      // Dil butonu metnini güncelle
+      document.getElementById('langText').textContent = lang.toUpperCase();
+      
+      // Dil tercihini localStorage'a kaydet
+      localStorage.setItem('language', lang);
+    }
+
     // İletişim menüsü
     (function(){
       const toggle = document.getElementById('ctaToggle');
@@ -973,14 +1194,21 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         fullData = {};
       }
 
+      const currentLang = localStorage.getItem('language') || 'tr';
+      const titleKey = currentLang === 'tr' ? 'title_tr' : 'title_en';
+      const descKey = currentLang === 'tr' ? 'desc_tr' : 'desc_en';
+
       const thumbImgSrc = card.querySelector('img')?.src || '';
       const imgSrc = fullData.img || thumbImgSrc;
 
       const overlayLink = document.getElementById('overlay-link');
 
       document.getElementById('overlay-img').src = imgSrc;
-      document.getElementById('overlay-title').innerText = fullData.title || '';
-      document.getElementById('overlay-desc').innerText = fullData.desc || '';
+      document.getElementById('overlay-title').innerText = fullData[titleKey] || '';
+      
+      // Açıklamadaki satır sonlarını koru
+      const desc = fullData[descKey] || '';
+      document.getElementById('overlay-desc').innerHTML = desc.replace(/\n/g, '<br>');
 
       if (fullData.link) {
         overlayLink.href = fullData.link;
@@ -1022,10 +1250,12 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
     // Tema değiştirme fonksiyonları
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = themeToggle.querySelector('i');
+    const langToggle = document.getElementById('langToggle');
     
     // Kullanıcının tercihini kontrol et
     const savedTheme = localStorage.getItem('theme');
     const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const savedLang = localStorage.getItem('language') || 'tr';
     
     // Temayı ayarla
     function setTheme(theme) {
@@ -1039,18 +1269,29 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       }
     }
     
-    // İlk tema ayarı
+    // İlk tema ve dil ayarı
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
       setTheme(prefersLight ? 'light' : 'dark');
     }
     
+    setLanguage(savedLang);
+    
     // Butona tıklanınca tema değiştir
     themeToggle.addEventListener('click', () => {
       const currentTheme = document.body.getAttribute('data-theme');
       setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
+    
+    // Dil değiştirme butonu
+    document.getElementById('langToggle').addEventListener('click', () => {
+      const currentLang = localStorage.getItem('language') || 'tr';
+      const newLang = currentLang === 'tr' ? 'en' : 'tr';
+      setLanguage(newLang);
+      closeOverlay(); // Açık overlay varsa kapat
+    });
+
   </script>
 </body>
 </html>
