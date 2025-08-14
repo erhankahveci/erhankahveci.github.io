@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root{
+    /* Karanlık tema değişkenleri */
     --bg-1: #04040a;
     --bg-2: #0b0820;
     --glass: rgba(255,255,255,0.06);
@@ -17,6 +18,23 @@
     --muted: #c6eaf6;
     --card-radius: 14px;
     --gap: 20px;
+    --text-color: #eaf8ff;
+    --card-bg: #0f1b29;
+    --shadow: 0 8px 24px rgba(2,6,23,0.35);
+  }
+  
+  [data-theme="light"] {
+    /* Aydınlık tema değişkenleri */
+    --bg-1: #f8f9fc;
+    --bg-2: #eef2ff;
+    --glass: rgba(0,0,0,0.03);
+    --glass-2: rgba(0,0,0,0.01);
+    --neon: #0077b6;
+    --neon-2: #5e60ce;
+    --muted: #4a5568;
+    --text-color: #1a202c;
+    --card-bg: #ffffff;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
   }
 
   *{box-sizing:border-box}
@@ -27,13 +45,45 @@
     background: radial-gradient(1200px 600px at 10% 10%, rgba(78,226,255,0.06), transparent 8%),
                 radial-gradient(900px 400px at 90% 90%, rgba(138,107,255,0.04), transparent 10%),
                 linear-gradient(180deg,var(--bg-1),var(--bg-2));
-    color: #eaf8ff;
+    color: var(--text-color);
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
     padding: 32px;
     display: flex;
     flex-direction: column;
     gap: 28px;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Tema değiştirme butonu */
+  .theme-toggle {
+    position: absolute;
+    top: 36px;
+    right: 36px;
+    z-index: 1000;
+    background: var(--glass);
+    border: 1px solid var(--glass);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    backdrop-filter: blur(4px);
+  }
+  
+  .theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  }
+  
+  .theme-toggle i {
+    font-size: 20px;
+    color: var(--neon);
+    transition: transform 0.3s ease;
   }
 
   /* Top bar / hero */
@@ -96,12 +146,19 @@
     font-size:28px;margin:0 0 8px 0;color:#eaffff;font-weight:700;
     letter-spacing: -0.2px;
   }
+  [data-theme="light"] .intro-title {
+    color: #1a202c;
+  }
   .intro-sub{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
   .hero-links{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;}
   .pill {
     display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
     background:linear-gradient(90deg, rgba(78,226,255,0.06), rgba(138,107,255,0.04));
     color:var(--muted);font-weight:600;font-size:13px;border:1px solid rgba(255,255,255,0.03)
+  }
+  [data-theme="light"] .pill {
+    background: rgba(0,0,0,0.04);
+    border:1px solid rgba(0,0,0,0.05);
   }
 
   .hero-right{
@@ -124,6 +181,9 @@
   .section-title{
     font-family:Inter, sans-serif;font-weight:700;color:#dff9ff;font-size:16px;
     border-left:3px solid var(--neon);padding-left:10px;
+  }
+  [data-theme="light"] .section-title {
+    color: #2d3748;
   }
   .section-sub{color:var(--muted);font-size:13px}
 
@@ -151,9 +211,19 @@
   position: relative;
 }
 
+[data-theme="light"] .card {
+  background: white;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
 .card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 16px 40px rgba(12,20,40,0.6), 0 0 28px rgba(78,226,255,0.06);
+}
+
+[data-theme="light"] .card:hover {
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1), 0 0 28px rgba(0,119,182,0.1);
 }
 
 .card::after {
@@ -162,7 +232,7 @@
   bottom: 10px;
   right: 14px;
   font-size: 12px;
-  color: #00bfff;
+  color: var(--neon);
   font-weight: 600;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -181,6 +251,9 @@
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.03);
 }
+[data-theme="light"] .thumb {
+  border: 1px solid rgba(0,0,0,0.05);
+}
 
 .thumb img {
   width: 100%;
@@ -198,6 +271,9 @@
   color: #e9feff;
   font-size: 14px;
   margin-bottom: 6px;
+}
+[data-theme="light"] .card-title {
+  color: #2d3748;
 }
 
 .card-desc {
@@ -218,6 +294,10 @@
   padding: 28px;
 }
 
+[data-theme="light"] .overlay {
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.9));
+}
+
 .overlay-inner {
   width: 100%;
   max-width: 1100px;
@@ -227,6 +307,12 @@
   display: flex;
   overflow: hidden;
   box-shadow: 0 40px 120px rgba(2,6,20,0.7);
+}
+
+[data-theme="light"] .overlay-inner {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,247,250,0.95));
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.1);
 }
 
 .overlay-media {
@@ -275,6 +361,10 @@
   border-radius: 8px;
 }
 
+[data-theme="light"] .overlay-close {
+  background: rgba(0,0,0,0.05);
+}
+
   /* show animation class used by JS when element enters viewport */
   .inview{transform: translateY(0);opacity:1;transition: transform .6s cubic-bezier(.2,.9,.2,1), opacity .6s}
 
@@ -283,6 +373,10 @@
     .hero { grid-template-columns: 1fr 260px;}
     .overlay-inner{flex-direction:column}
     .overlay-media{flex-basis:40%}
+    .theme-toggle {
+      top: 20px;
+      right: 20px;
+    }
   }
   @media (max-width: 640px){
     body{padding:18px}
@@ -328,26 +422,23 @@
     .overlay-media{min-height:220px}
     .intro-title { font-size: 22px; }
     .intro-sub { font-size: 13px; }
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      top: 16px;
+      right: 16px;
+    }
   }
   
   /* İletişim butonu için özel stiller */
   .cta-container { position: relative; display: inline-block; }
-
-  :root{
-    --bg: #001e36;
-    --accent: #31a8ff;
-    --muted: #d1d1d1;
-    --card-bg: #0f1b29;
-    --radius: 10px;
-    --shadow: 0 8px 24px rgba(2,6,23,0.35);
-  }
 
   .btn {
     display:inline-flex;
     align-items:center;
     gap:8px;
     padding:10px 14px;
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     border: none;
     cursor: pointer;
     font-weight:600;
@@ -356,19 +447,19 @@
   }
 
   .btn.primary {
-    background: var(--accent);
+    background: var(--neon);
     color: white;
     box-shadow: 0 4px 12px rgba(49,168,255,0.18);
     transition: background 0.2s ease;
   }
   .btn.primary:hover {
-    background: #2196e0;
+    background: var(--neon-2);
   }
 
   .btn.secondary {
     background: transparent;
-    color: #ffffff;
-    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--text-color);
+    border: 1px solid var(--glass);
     padding:8px 12px;
     font-weight:600;
     border-radius:8px;
@@ -380,8 +471,8 @@
   }
 
   .btn.secondary:hover {
-    background: rgba(255,255,255,0.1);
-    color: #ffffff;
+    background: var(--glass);
+    color: var(--neon);
   }
 
   .cta-menu {
@@ -390,13 +481,14 @@
     margin-top: 10px;
     min-width: 200px;
     background: var(--card-bg);
-    border-radius: var(--radius);
+    border-radius: var(--card-radius);
     box-shadow: var(--shadow);
     padding: 10px;
     display: none;
     flex-direction: column;
     gap:6px;
     z-index: 1200;
+    border: 1px solid var(--glass);
   }
 
   .cta-menu.show { display: flex; }
@@ -417,16 +509,16 @@
   }
   .cta-link:hover {
     transform: scale(1.05);
-    background: rgba(255,255,255,0.05);
+    background: var(--glass);
   }
 
   /* Marka renkleri */
   .cta-link.linkedin i { color: #0077B5; }
-  .cta-link.github i { color: #f5f5f5; }
+  .cta-link.github i { color: #333; }
   .cta-link.medium svg { fill: #00ab6c; }
   .cta-link.mail i { color: #D44638; }
 
-  .divider { height:1px; background: rgba(255,255,255,0.1); margin:6px 0; border-radius:2px; }
+  .divider { height:1px; background: var(--glass); margin:6px 0; border-radius:2px; }
 
   .download-cv { justify-content:center; text-align:center; }
   
@@ -441,6 +533,10 @@
     margin-top: 40px;
     user-select: none;
   }
+  [data-theme="light"] .site-footer {
+    background: rgba(255,255,255,0.9);
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
   .site-footer .container {
     max-width: 1100px;
     margin: 0 auto;
@@ -454,6 +550,11 @@
 </style>
 </head>
 <body>
+
+  <!-- Tema değiştirme butonu -->
+  <div class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+    <i class="fa-solid fa-moon"></i>
+  </div>
 
   <div class="top" role="banner">
     <div class="brand">
@@ -916,6 +1017,39 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
 
     document.querySelectorAll('.card').forEach((c, i)=>{
       observer.observe(c);
+    });
+    
+    // Tema değiştirme fonksiyonları
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    
+    // Kullanıcının tercihini kontrol et
+    const savedTheme = localStorage.getItem('theme');
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    
+    // Temayı ayarla
+    function setTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      
+      if (theme === 'light') {
+        themeIcon.className = 'fa-solid fa-sun';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+      }
+    }
+    
+    // İlk tema ayarı
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      setTheme(prefersLight ? 'light' : 'dark');
+    }
+    
+    // Butona tıklanınca tema değiştir
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.body.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
   </script>
 </body>
