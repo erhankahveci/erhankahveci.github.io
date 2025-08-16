@@ -660,20 +660,6 @@
     right: 10px;
   }
 
-  .visitor-counter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .visitor-counter i {
-    color: var(--neon);
-  }
-
   /* Galeri için Overlay */
   .gallery-overlay {
     position: fixed;
@@ -1180,11 +1166,6 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
   <footer class="site-footer">
     <div class="container">
       <p>© 2025 Erhan Kahveci. <span data-i18n="rights">Tüm hakları saklıdır.</span></p>
-      <div class="visitor-counter">
-        <i class="fas fa-users"></i>
-        <span data-i18n="visitor_count">Ziyaretçi Sayısı:</span> 
-        <span id="visitorCount">0</span>
-      </div>
     </div>
   </footer>
 
@@ -1252,8 +1233,6 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         "read_more": "Devamını oku",
         "gallery_title": "Galeri",
         "gallery_sub": "Fotoğraflar ve Anılar",
-        "visitor_count": "Ziyaretçi Sayısı:",
-        // Galeri için çeviriler
         "gallery1": "DENEYAP Takımlar Dönemi Final Sergisi",
         "gallery2": "Mühendislik Buluşması",
         "gallery3": "TRT Radyo Ropörtaj",
@@ -1324,8 +1303,6 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         "read_more": "Read more",
         "gallery_title": "Gallery",
         "gallery_sub": "Photos and Memories",
-        "visitor_count": "Visitor Count:",
-        // Galeri için çeviriler
         "gallery1": "DENEYAP Teams Period Final Exhibition",
         "gallery2": "Engineering Meeting",
         "gallery3": "TRT Radio Interview",
@@ -1486,19 +1463,6 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       closeOverlay();
     });
 
-    // Ziyaretçi sayacı
-    function updateVisitorCount() {
-      let count = localStorage.getItem('visitorCount');
-      if (!count) {
-        count = 0;
-      } else {
-        count = parseInt(count);
-      }
-      count++;
-      localStorage.setItem('visitorCount', count);
-      document.getElementById('visitorCount').textContent = count;
-    }
-
     // Galeri verileri
     const galleryData = [
       { src: "images/deneyap_final_sergisi.jpg" },
@@ -1623,7 +1587,6 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
 
     // Sayfa yüklendiğinde çalışacak fonksiyonlar
     document.addEventListener('DOMContentLoaded', () => {
-      updateVisitorCount();
       initGallery();
       setupGalleryNavigation();
     });
