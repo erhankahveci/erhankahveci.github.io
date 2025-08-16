@@ -6,6 +6,8 @@
 <title>Portföy — Bilgisayar Mühendisi</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
 <style>
   :root{
     /* Karanlık tema değişkenleri */
@@ -21,6 +23,7 @@
     --text-color: #eaf8ff;
     --card-bg: #0f1b29;
     --shadow: 0 8px 24px rgba(2,6,23,0.35);
+    --transition: all 0.3s ease;
   }
   
   [data-theme="light"] {
@@ -76,7 +79,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     backdrop-filter: blur(4px);
   }
@@ -713,6 +716,23 @@
     padding: 10px;
     background: rgba(0,0,0,0.6);
   }
+
+ 
+  /* Erişilebilirlik için odak durumu */
+  *:focus-visible {
+    outline: 2px solid var(--neon);
+    outline-offset: 2px;
+  }
+
+  /* Animasyonlar */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeIn 0.6s ease forwards;
+  }
 </style>
 </head>
 <body>
@@ -1240,7 +1260,7 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         "gallery5": "Akıllı Otel Maket Çalışması",
         "gallery6": "Aras Elektrik Gezi",
         "gallery7": "AKBANK Kampüs 101",
-	"gallery8": "DEVFEST 2023"
+        "gallery8": "DEVFEST 2023",
       },
       en: {
         "name": "Erhan Kahveci",
@@ -1310,8 +1330,9 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         "gallery5": "Smart Hotel Model Work",
         "gallery6": "Aras Electricity Visit",
         "gallery7": "AKBANK Campus 101",
-	"gallery8": "DEVFEST 2023"
-
+        "gallery8": "DEVFEST 2023",
+        "skills_title": "Skills",
+        "skills_sub": "Technical Skills"
       }
     };
 
@@ -1440,6 +1461,13 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       }
     }
     
+    // Sistem teması değişikliklerini dinle
+    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: light)');
+    colorSchemeQuery.addEventListener('change', (e) => {
+      const newTheme = e.matches ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+    
     // İlk tema ve dil ayarı
     if (savedTheme) {
       setTheme(savedTheme);
@@ -1465,14 +1493,14 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
 
     // Galeri verileri
     const galleryData = [
-      { src: "images/deneyap_final_sergisi.jpg" },
-      { src: "images/muhendislik_bulusmasi.jpg" },
-      { src: "images/TRT_radyo_roportaj.jpg" },
-      { src: "images/TEKNOFEST_2024_Final.jpg" },
-      { src: "images/maket_boyama.jpg" },
-      { src: "images/aras_elektrik.jpg" },
-      { src: "images/akbank_kampus_101.jpg" },
-      { src: "images/DEVFEST_2023.jpg" }
+      { src: "images/deneyap_final_sergisi.jpg", captionKey: "gallery1" },
+      { src: "images/muhendislik_bulusmasi.jpg", captionKey: "gallery2" },
+      { src: "images/TRT_radyo_roportaj.jpg", captionKey: "gallery3" },
+      { src: "images/TEKNOFEST_2024_Final.jpg", captionKey: "gallery4" },
+      { src: "images/maket_boyama.jpg", captionKey: "gallery5" },
+      { src: "images/aras_elektrik.jpg", captionKey: "gallery6" },
+      { src: "images/akbank_kampus_101.jpg", captionKey: "gallery7" },
+      { src: "images/DEVFEST_2023.jpg", captionKey: "gallery8" }
     ];
 
     // Galeri oluşturma
@@ -1485,7 +1513,7 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
         slide.className = 'gallery-slide';
         slide.innerHTML = `
           <img src="${item.src}" class="gallery-img" alt="">
-          <div class="gallery-caption" data-i18n="gallery${index + 1}"></div>
+          <div class="gallery-caption" data-i18n="${item.captionKey}"></div>
         `;
         slide.addEventListener('click', () => openGalleryOverlay(item.src, index));
         galleryTrack.appendChild(slide);
@@ -1501,13 +1529,12 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       const captions = document.querySelectorAll('.gallery-caption');
       
       captions.forEach((caption, index) => {
-        const captionKey = `gallery${index + 1}`;
+        const captionKey = galleryData[index].captionKey;
         if (translations[currentLang][captionKey]) {
           caption.textContent = translations[currentLang][captionKey];
         }
       });
     }
-    
 
     // Galeri navigasyonu
     function setupGalleryNavigation() {
@@ -1565,7 +1592,7 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       const currentLang = localStorage.getItem('language') || 'tr';
       
       // Doğru çeviriyi al
-      const captionKey = `gallery${index+1}`;
+      const captionKey = galleryData[index].captionKey;
       const caption = translations[currentLang][captionKey] || '';
 
       img.src = src;
@@ -1585,10 +1612,28 @@ Deneyap Türkiye'de mentörlük yaparak liderlik ve takım çalışması beceril
       }
     });
 
+    // PWA için service worker kaydı
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+
     // Sayfa yüklendiğinde çalışacak fonksiyonlar
     document.addEventListener('DOMContentLoaded', () => {
       initGallery();
       setupGalleryNavigation();
+      
+      // Erişilebilirlik için tabindex ekle
+      document.querySelectorAll('button, a, input').forEach(el => {
+        el.setAttribute('tabindex', '0');
+      });
     });
   </script>
 </body>
